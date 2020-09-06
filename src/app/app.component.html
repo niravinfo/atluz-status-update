@@ -1,8 +1,10 @@
+<mat-toolbar color="primary">
+  <span>Atluz Status Update</span>
+</mat-toolbar>
 <div class="container">
   <mat-card>
     <mat-card-content>
-      <mat-form-field appearance="fill" style="width: 100%;">
-        <mat-label>Paste Your Response Data Text Here</mat-label>
+      <mat-form-field appearance="outline" style="width: 100%;">
         <textarea matInput
                   [rows]="5"
                   [(ngModel)]="responseDataText"
@@ -17,6 +19,7 @@
   <mat-card *ngIf="formattedTimesheets" style="padding-top: 15px;" id="statusId">
     <mat-card-content>
       <div *ngFor="let item of formattedTimesheets">
+        <div style="display: inline;">• </div>
         <div style="display: inline;" *ngIf="item.workItemReference">#{{item.workItemReference}}: </div>
         <div style="display: inline;"> {{item.description}}</div>
         <div style="display: inline;"> ({{item.type}})</div>

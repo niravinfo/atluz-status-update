@@ -70,12 +70,12 @@ export class AppComponent {
       timesheets.forEach(x => {
         let type = x.timesheetType.name;
         let workItemReference = '';
-        if (x.shortText) {
-          // need to check the parsing and replacing
-          workItemReference = x.shortText.match(/\d+/)?.[0];
-          let index = x.shortText.indexOf(':');
-          if (index !== -1) {
-            x.shortText = x.shortText.substring(index + 1)?.trim();
+        if (x.shortText && x.shortText.startsWith('#')) {
+          const startIndex = x.shortText.indexOf('#');
+          const endIndex = x.shortText.indexOf(':');
+          if (endIndex !== -1) {
+            workItemReference = x.shortText.substring(startIndex + 1, endIndex).match(/\d+/)?.[0];
+            x.shortText = x.shortText.substring(endIndex + 1)?.trim();
           }
         }
 
@@ -110,7 +110,7 @@ export class AppComponent {
     }
   }
 
-  // need to sort the list
+  // sort the list
   sortData(workItemStatuses: WorkItemStatus[]) {
     workItemStatuses = workItemStatuses.sort((a, b) => {
       return this.timesheetTypes.indexOf(a.type) - this.timesheetTypes.indexOf(b.type);

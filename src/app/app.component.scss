@@ -1,5 +1,14 @@
+.mat-toolbar-row, .mat-toolbar {
+    min-height: 50px !important;
+    height: 50px !important;
+}
+
 .mat-card {
     margin-bottom: 16px;
+}
+
+.container > .mat-card:first-child{
+    margin-top: 16px;
 }
 
 .mat-form-field {
