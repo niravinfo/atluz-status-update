@@ -21,9 +21,11 @@
       <div *ngFor="let item of formattedTimesheets">
         <div style="display: inline;">• </div>
         <div style="display: inline;" *ngIf="item.workItemReference">#{{item.workItemReference}}: </div>
-        <div style="display: inline;"> {{item.description}}</div>
-        <div style="display: inline;"> ({{item.type}})</div>
-        <div style="display: inline;"> ({{item.workMinutes | durationToTime}})</div>
+        <div style="display: inline;">{{item.description}}</div>
+        <div style="display: inline;"> ({{item.totalMinutes | durationToTime}})</div>
+        <div *ngFor="let type of item.types">
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;- {{type.type}} ({{type.workMinutes| durationToTime}})</div>
+        </div>
       </div>
     </mat-card-content>
     <mat-card-actions align="center">

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { WorkItemStatus } from '../models/workitem-status.model';
+import { WorkItemType } from '../models/workitem-type.model';
 import { ResponseData } from '../models/response-data.model';
 import { PageData } from '../models/pagedata.model';
 import { Timesheet } from '../models/timesheet.model';
@@ -80,12 +81,12 @@ export class AppComponent {
         }
 
         let workItemStatus = null;
-        if (workItemReference != null) {
+        if (workItemReference != null && workItemReference.length > 0) {
           // find by work item and type
-          workItemStatus = this.formattedTimesheets.find(o => o.workItemReference == workItemReference && o.type == type);
+          workItemStatus = this.formattedTimesheets.find(o => o.workItemReference == workItemReference);
         } else {
           // find by type and text
-          workItemStatus = this.formattedTimesheets.find(o => o.type == type && o.description.includes(x.shortText));
+          workItemStatus = this.formattedTimesheets.find(o => o.description.includes(x.shortText) && o.types.find(n => n.type == type));
         }
 
         if (workItemStatus) {
@@ -93,13 +94,26 @@ export class AppComponent {
             workItemStatus.description = x.shortText;
           }
 
-          workItemStatus.workMinutes += x.workMinutes;
+          let workItemTypeHour = workItemStatus.types.find(n => n.type == type);
+          if (workItemTypeHour) {
+            workItemTypeHour.workMinutes += x.workMinutes;
+          } else {
+            workItemTypeHour = new WorkItemType();
+            workItemTypeHour.type = type;
+            workItemTypeHour.workMinutes = x.workMinutes;
+            workItemStatus.types.push(workItemTypeHour);
+          }
+
+          workItemStatus.totalMinutes += x.workMinutes;
         } else {
           workItemStatus = new WorkItemStatus();
-          workItemStatus.type = type;
           workItemStatus.workItemReference = workItemReference;
           workItemStatus.description = x.shortText;
-          workItemStatus.workMinutes = x.workMinutes;
+          workItemStatus.totalMinutes += x.workMinutes;
+          let workItemTypeHour = new WorkItemType();
+          workItemTypeHour.type = type;
+          workItemTypeHour.workMinutes = x.workMinutes;
+          workItemStatus.types.push(workItemTypeHour);
           this.formattedTimesheets.push(workItemStatus);
         }
       });
@@ -113,7 +127,30 @@ export class AppComponent {
   // sort the list
   sortData(workItemStatuses: WorkItemStatus[]) {
     workItemStatuses = workItemStatuses.sort((a, b) => {
-      return this.timesheetTypes.indexOf(a.type) - this.timesheetTypes.indexOf(b.type);
+      let aMinIndex = 100;
+      let bMinIndex = 100;
+
+      a.types.forEach(x => {
+        const index = this.timesheetTypes.indexOf(x.type);
+        if (index != -1 && index < aMinIndex) {
+          aMinIndex = index;
+        }
+      });
+
+      b.types.forEach(x => {
+        const index = this.timesheetTypes.indexOf(x.type);
+        if (index != -1 && index < bMinIndex) {
+          bMinIndex = index;
+        }
+      });
+
+      if (aMinIndex < bMinIndex) {
+        return -1;
+      } else if (aMinIndex > bMinIndex) {
+        return 1;
+      } else {
+        return 0;
+      }
     });
 
     return workItemStatuses;
